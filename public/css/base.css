@@ -1,0 +1,179 @@
+@import url("https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300;400;500&display=swap");
+/* @import url("http://fonts.cdnfonts.com/css/tf2-build"); */
+
+:root {
+  --background: 46, 42, 40; /* #2e2a28 */
+  --black: 0, 0, 0; /* #000000 */
+  --white: 255, 255, 255; /* #ffffff */
+  --red: 251, 82, 79; /* #fb524f */
+  --blu: 153, 194, 216; /* #99c2d8 */
+  --yellow: 231, 181, 59; /* #e7b53b */
+  --green: 170, 246, 131; /* #aaf683 */
+}
+
+* {
+  font-family: "Source Code Pro", monospace;
+  /* font-family: "TF2 Build", sans-serif; */
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: rgba(var(--background), 1);
+}
+
+#app {
+  overflow-x: hidden;
+  display: flex;
+  flex-wrap: nowrap;
+  /* flex: 1 1 150px; */
+  flex-direction: row;
+  justify-items: center;
+  justify-content: center;
+  align-items: center;
+  margin-top: auto;
+  height: 100vh;
+  width: 100vw;
+  padding: 0 10px 0 10px;
+}
+
+div.logs,
+div.players,
+div.player {
+  border-radius: 10px;
+  background: rgba(var(--black), 0.3);
+}
+
+div.logs {
+  margin: 0 0 0 25px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  height: 95vh;
+  width: 30%;
+  padding: 25px;
+}
+
+div.players {
+  overflow-x: hidden;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  height: 95vh;
+  width: 70%;
+  padding: 25px;
+}
+
+/* Titles */
+
+h1.logs-title {
+  color: rgba(var(--white), 0.9);
+  text-align: center;
+  margin: 5px 0 20px 0;
+  font-size: 2em;
+}
+
+/* Lobby */
+
+div.lobby {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+
+h1.lobby-map,
+h1.lobby-players {
+  color: rgba(var(--white), 0.9);
+  margin: 5px 0 14px 0;
+}
+
+h1.lobby-map-type {
+  color: rgba(var(--white), 0.6);
+  margin: 5px 0 14px 20px;
+}
+
+h1.lobby-players {
+  margin-left: auto;
+}
+
+h1.lobby-players {
+  margin-left: auto;
+}
+
+/* Players */
+
+table.players-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 5px;
+}
+
+tr.players-header {
+  width: 100%;
+  color: rgba(var(--white), 0.9);
+}
+
+tr.players-player {
+  width: 100%;
+  color: rgba(var(--white), 0.6);
+  font-weight: normal;
+  font-size: 18px;
+}
+
+td:first-child {
+  border-start-start-radius: 5px;
+  border-end-start-radius: 5px;
+}
+
+td:last-child {
+  border-start-end-radius: 5px;
+  border-end-end-radius: 5px;
+}
+
+th.players-header-text {
+  text-align: center;
+  /* font-weight: normal; */
+  font-size: 18px;
+}
+
+td.players-player-text {
+  text-align: center;
+}
+
+/* Logs */
+
+h1.players-none {
+  text-align: center;
+  color: rgba(var(--white), 0.9);
+}
+
+div.separator {
+  margin: 7px 0 7px 0;
+  height: 2px;
+  width: 100%;
+  background: rgba(var(--white), 0.1);
+}
+
+div.logs-message {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+}
+
+p.message-time {
+  color: rgba(var(--white), 0.6);
+  border-radius: 5px;
+  padding: 2px 4px 2px 4px;
+  background: rgba(var(--black), 0.5);
+  font-size: 18px;
+  margin: 8px 0 8px 8px;
+}
+
+p.message-content {
+  color: rgba(var(--white), 0.8);
+  font-size: 18px;
+  margin: 8px 8px 8px 8px;
+}
+
+strong.message-content-player {
+  color: rgba(var(--white), 1);
+}

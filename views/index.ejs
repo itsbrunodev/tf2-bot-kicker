@@ -1,0 +1,71 @@
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="/img/favicon.png" />
+  <link rel="stylesheet" type="text/css" href="/css/base.css" />
+  <title><%= title %></title>
+</head>
+
+<body>
+  <div id="app">
+    <div class="players" id="players" <% if (!connected) { %> style="justify-content:center;align-items:center;" <% } %>>
+      <% if (!connected) { %>
+      <h1 class="players-none">Not Connected</h1>
+      <% } else { %>
+      <div class="lobby">
+        <h1 class="lobby-map"><%= lobby.map ? lobby.map[0] : "??" %></h1>
+        <h1 class="lobby-map-type"><%= lobby.map ? lobby.map[1] : "??" %></h1>
+        <h1 class="lobby-players"><%= players.length ? players.length : "??" %> / <%= lobby.playerCount ? lobby.playerCount : "??" %> players</h1>
+      </div>
+      <div class="separator"></div>
+      <table class="players-table" id="table">
+        <tr class="players-header">
+          <th class="players-header-text">Player Name</th>
+          <th class="players-header-text">Ping</th>
+          <th class="players-header-text">Cheater?</th>
+          <th class="players-header-text">Player ID</th>
+          <th class="players-header-text">Steam ID</th>
+        </tr>
+        <% players.map((player) => { %>
+        <tr class="players-player" <% if (player.team === "blu") { %> style="background: rgba(var(--blu), 0.3);" <% } else { %> style="background: rgba(var(--red), 0.3);" <% } %>>
+          <td class="players-player-text" <% if (player.name === "Bruno") { %> style="color: rgba(var(--white), 1);font-weight: 500;" <% } %>>
+            <%= player.nameShort ? player.nameShort : "??" %>
+          </td>
+          <td class="players-player-text"><%= player.ping ? player.ping : "??" %>ms</td>
+          <td class="players-player-text" <% if (player.cheater) { %> style="color: rgba(var(--yellow), 1);" <% } %>> <%= player.cheater
+                    ? "Yes" : "No" %>
+          </td>
+          <td class="players-player-text"><%= player.id ? player.id : "??" %></td>
+          <td class="players-player-text"><%= player.steamId ? player.steamId : "??" %></td>
+        </tr>
+        <% }); %>
+      </table>
+      <% } %>
+    </div>
+    <div class="logs">
+      <% if (connected) { %>
+      <h1 class="logs-title">Logs</h1>
+      <div class="separator"></div>
+      <% logs.map((log) => { %>
+      <% if (log.author === "separator" && !log.content) { %>
+      <div class="separator">
+      </div>
+      <% } else { %>
+      <div class="logs-message">
+        <p class="message-time"><%= log.time %></p>
+        <p class="message-content">Called a vote on <strong class="message-content-player"><%= log.content %></strong>.</p>
+      </div>
+      <% } %>
+      <% }); %>
+      <% } %>
+    </div>
+  </div>
+
+  <script src="/script.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</body>
+
+</html>
