@@ -1,11 +1,13 @@
 module.exports = {
-  steam_id: "U:1:901819220",
-  tf2_console_file_path:
-    "D:\\Games\\Steam\\steamapps\\common\\Team Fortress 2\\tf\\console.log",
+  /* your steam id (example U:1:XXXXXXXXXX) */
+  steam_id: "",
+  /* the location of the /tf directory in team fortress 2 */
+  tf_path: "",
+  /* rcon settings */
   rcon: {
-    ip: "192.168.0.13",
+    ip: "",
     port: 27015 /* default */,
-    password: "tf2bk" /* default */,
+    password: "tf2-bot-kicker" /* default */,
   },
   /* default urls where the bots' steamIDs are stored  */
   urls: [
@@ -27,7 +29,7 @@ module.exports = {
     {
       name: "pazer",
       disabled: true,
-      url: "https://tf2bdd.pazer.us/v1/steamids", /* this url is temporarily offline */
+      url: "https://tf2bdd.pazer.us/v1/steamids" /* this url is temporarily offline */,
     },
   ],
 };

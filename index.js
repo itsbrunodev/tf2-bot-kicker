@@ -16,16 +16,16 @@ const { ip, port, password } = config.rcon;
 const connection = new Rcon(ip, port, password);
 
 /* user info, tf2 console file path, and caching of the bot list files */
-const { steam_id, tf2_console_file_path, urls } = config;
+const { steam_id, tf_path, urls } = config;
 const playerId = steam_id;
-const tf2Path = tf2_console_file_path.replace("/", "\\");
+const tf2Path = tf_path.replace("/", "\\");
 cacheList(urls);
 /* status */
 let connected = false;
 let command = "";
 let lastCalled = 0;
 let voteDelay = 2 * 60 * 1000 + 35 * 1000; /* 2 min 35 sec, ~150,000 ms */
-let logFile = readFileSync(tf2Path, "utf8");
+let logFile = readFileSync(`${tf2Path}\\console.log`, "utf8");
 /* game */
 let lobbyIds = [];
 let lobby = {};
@@ -61,7 +61,7 @@ app.get("/", async (req, res) => {
 });
 
 /* verify config values */
-if (!existsSync(tf2Path)) {
+if (!existsSync(`${tf2Path}\\console.log`)) {
   console.log(`${log("error")} Your tf2 console file path couldn't be found`);
   return process.exit(1);
 }
@@ -185,7 +185,7 @@ connection
         return;
       }
     } else if (command === "status") {
-      const logFile2 = readFileSync(tf2Path, "utf8");
+      const logFile2 = readFileSync(`${tf2Path}\\console.log`, "utf8");
       const status = difference(logFile, logFile2);
       if (!status.includes("Valve Matchmaking Server")) return;
       logFile = logFile2;
