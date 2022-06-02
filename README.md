@@ -3,7 +3,7 @@
 
 ## Usage
 
-To start using this tool, you need to download it from [here](https://github.com/brunolepis/tf2-bot-kicker/releases).
+To start using this tool, you need to download it from [here](https://github.com/brunolepis/tf2-bot-kicker/archive/refs/heads/master.zip).
 
 ```
 net_start
