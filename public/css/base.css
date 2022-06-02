@@ -6,9 +6,6 @@
   --black: 0, 0, 0; /* #000000 */
   --white: 255, 255, 255; /* #ffffff */
   --red: 251, 82, 79; /* #fb524f */
-  --blu: 153, 194, 216; /* #99c2d8 */
-  --yellow: 231, 181, 59; /* #e7b53b */
-  --green: 170, 246, 131; /* #aaf683 */
 }
 
 * {
@@ -38,9 +35,9 @@ body {
 }
 
 div.logs,
-div.players,
-div.player {
+div.players {
   border-radius: 10px;
+  padding: 25px;
   background: rgba(var(--black), 0.3);
 }
 
@@ -50,17 +47,15 @@ div.logs {
   overflow-y: auto;
   height: 95vh;
   width: 30%;
-  padding: 25px;
 }
 
 div.players {
   overflow-x: hidden;
-  overflow-y: auto;
+  overflow-y: hidden;
   display: flex;
   flex-direction: column;
   height: 95vh;
   width: 70%;
-  padding: 25px;
 }
 
 /* Titles */

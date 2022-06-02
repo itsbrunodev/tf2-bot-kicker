@@ -24,18 +24,18 @@
       <table class="players-table" id="table">
         <tr class="players-header">
           <th class="players-header-text">Player Name</th>
-          <th class="players-header-text">Ping</th>
+          <th class="players-header-text">Connected</th>
           <th class="players-header-text">Cheater?</th>
           <th class="players-header-text">Player ID</th>
           <th class="players-header-text">Steam ID</th>
         </tr>
         <% players.map((player) => { %>
-        <tr class="players-player" <% if (player.team === "blu") { %> style="background: rgba(var(--blu), 0.3);" <% } else { %> style="background: rgba(var(--red), 0.3);" <% } %>>
+        <tr class="players-player" <% if (player.team === "invaders") { %> style="background: rgba(var(--white), 0.15);" <% } else { %> style="background: rgba(var(--white), 0.075);" <% } %>>
           <td class="players-player-text" <% if (player.name === "Bruno") { %> style="color: rgba(var(--white), 1);font-weight: 500;" <% } %>>
             <%= player.nameShort ? player.nameShort : "??" %>
           </td>
-          <td class="players-player-text"><%= player.ping ? player.ping : "??" %>ms</td>
-          <td class="players-player-text" <% if (player.cheater) { %> style="color: rgba(var(--yellow), 1);" <% } %>> <%= player.cheater
+          <td class="players-player-text"><%= player.connected ? player.connected : "??" %></td>
+          <td class="players-player-text" <% if (player.cheater) { %> style="color: rgba(var(--red), 1);" <% } %>> <%= player.cheater
                     ? "Yes" : "No" %>
           </td>
           <td class="players-player-text"><%= player.id ? player.id : "??" %></td>

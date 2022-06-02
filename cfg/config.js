@@ -27,7 +27,7 @@ module.exports = {
     {
       name: "pazer",
       disabled: true,
-      url: "https://tf2bdd.pazer.us/v1/steamids",
+      url: "https://tf2bdd.pazer.us/v1/steamids", /* this url is temporarily offline */
     },
   ],
 };

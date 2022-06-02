@@ -12,6 +12,10 @@ module.exports.log = (type) => {
         date.getMinutes() < 10
           ? `0${date.getMinutes()}`
           : `${date.getMinutes()}`
+      }:${
+        date.getSeconds() < 10
+          ? `0${date.getSeconds()}`
+          : `${date.getSeconds()}`
       } `
     )
   )}`;
@@ -102,7 +106,7 @@ module.exports.formatter = (str) => {
 
 module.exports.difference = (str1, str2) => {
   let diff = "";
-  str2.split("").forEach(function (val, i) {
+  str2.split("").forEach((val, i) => {
     if (val != str1.charAt(i)) diff += val;
   });
   return diff;

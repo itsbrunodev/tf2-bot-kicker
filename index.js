@@ -46,7 +46,7 @@ app.get("/", async (req, res) => {
   return res.render("index", {
     title: "TF2 Bot Kicker",
     logs,
-    players: players.sort((a, b) => {
+    players: players /* .sort((a, b) => {
       if (a.team < b.team) {
         return -1;
       }
@@ -54,7 +54,7 @@ app.get("/", async (req, res) => {
         return 1;
       }
       return 0;
-    }),
+    }) */,
     connected,
     lobby,
   });
@@ -75,8 +75,6 @@ connection
       if (str === "Failed to find lobby shared object")
         return (connected = false);
       else connected = true;
-
-      const tempPlayers = [];
 
       const lobbyDebug_Lobby = /ID:(\w+)\s+(\d+)\s+[\w\(\),]+\s+(\d*)\s+/gm;
 
@@ -102,12 +100,13 @@ connection
         continue;
       }
 
-      const lobbyDebug_User = /\s+\[(\w+:\d+:\d+)\]\s+\w+\s+=\s+(\w+)/gm;
+      const tempPlayers = [];
 
+      const lobbyDebug_User = /\s+\[(\w+:\d+:\d+)\]\s+\w+\s+=\s+(\w+)/gm;
       while ((match = lobbyDebug_User.exec(str)) !== null) {
         const obj = {
           steamId: match[1],
-          team: match[2] === "TF_GC_TEAM_DEFENDERS" ? "red" : "blu",
+          team: match[2] === "TF_GC_TEAM_DEFENDERS" ? "defenders" : "invaders",
         };
         if (!tempPlayers.find((x) => x.steamId === match[1]))
           tempPlayers.push(obj);
@@ -116,7 +115,7 @@ connection
         continue;
       }
 
-      players.map((player, index) => {
+      return players.map((player, index) => {
         if (!tempPlayers.find((x) => x.steamId === player.steamId)) {
           players.splice(index, 1);
           if (debugPlayers.find((x) => x.steamId === player.steamId)) {
@@ -128,68 +127,13 @@ connection
           return;
         } else return;
       });
-
-      /* bot detector and kicker */
-      try {
-        const files = readdirSync("./cache/");
-        return files.map((file) => {
-          const res = readFileSync(`./cache/${file}`, "utf8");
-          const response = JSON.parse(res);
-          const data = response.players;
-          if (data.length === 0) return;
-          if (players.length <= 1) return;
-          else
-            return players.map((player, index) => {
-              let steamId = `[${player.steamId}]`;
-              if (file === "pazer.json") {
-                const steamid = new SteamID(`[${player.steamId}]`);
-                steamId = Number(steamid.getSteamID64()) - 1;
-              }
-              const cheater = data.find((x) => x.steamid === steamId);
-              const user = players.find((x) => x.steamId === playerId);
-
-              if (cheater && !player.cheater) {
-                players.splice(index, 1, {
-                  ...player,
-                  cheater: true,
-                });
-              }
-
-              if (cheater && user && user.team === player.team) {
-                if (lastCalled >= Date.now() - voteDelay) return;
-                lastCalled = Date.now();
-                command = `callvote kick ${player.id}`;
-                connection.send(command);
-                const date = new Date();
-                logs.push({
-                  content: player.name,
-                  time: `${
-                    date.getHours() < 10
-                      ? `0${date.getHours()}`
-                      : `${date.getHours()}`
-                  }:${
-                    date.getMinutes() < 10
-                      ? `0${date.getMinutes()}`
-                      : `${date.getMinutes()}`
-                  }`,
-                });
-                console.log(`${log("vote")} Called vote on ${player.name}`);
-                return;
-              } else return;
-            });
-        });
-      } catch {
-        return;
-      }
     } else if (command === "status") {
-      const status_User =
-        /^#\s+(\d+)\s+\"([-+., A-Za-z0-9\S]+)\"\s+\[(\w+:\d+:\d+)\]\s+[\d:]+\s+(\d+)\s+\d\s+\w+$/gm;
-      const map_Lobby = /map\s+:\s+(\w+)/gm;
-
       const logFile2 = readFileSync(tf2Path, "utf8");
       const status = difference(logFile, logFile2);
+      if (!status.includes("Valve Matchmaking Server")) return;
       logFile = logFile2;
 
+      const map_Lobby = /map\s+:\s+(\w+)/gm;
       while ((match = map_Lobby.exec(status)) !== null) {
         const regex = /([a-z]+)_(\w+)/;
         const mapType = match[1].match(regex)[1];
@@ -204,6 +148,8 @@ connection
         } else continue;
       }
 
+      const status_User =
+        /^#\s+(\d+)\s+\"([-+., A-Za-z0-9\S]+)\"\s+\[(\w+:\d+:\d+)\]\s+([\d:]+)\s+\d+\s+\d\s+\w+$/gm;
       while ((match = status_User.exec(status)) !== null) {
         const debugPlayer = debugPlayers.find((x) => x.steamId === match[3]);
         const player = players.find((x) => x.steamId === match[3]);
@@ -217,7 +163,7 @@ connection
                 match[2].length >= 40
                   ? `${match[2].substring(0, 37)}...`
                   : match[2],
-              ping: match[4],
+              connected: match[4],
               cheater: player.cheater,
               id: match[1],
               steamId: match[3],
@@ -232,7 +178,7 @@ connection
               match[2].length >= 40
                 ? `${match[2].substring(0, 37)}...`
                 : match[2],
-            ping: match[4],
+            connected: match[4],
             cheater: false,
             id: match[1],
             steamId: match[3],
@@ -241,7 +187,9 @@ connection
           continue;
         }
       }
-    }
+
+      return;
+    } else return;
   })
   .on("server", (str) => {
     return console.log(str);
@@ -276,7 +224,66 @@ setInterval(() => {
     players = removeDuplicates(players, "steamId");
     return;
   }
-}, 50);
+}, 0);
+
+setInterval(() => {
+  /* bot detector and kicker */
+  try {
+    const files = readdirSync("./cache/");
+    files.map((file) => {
+      const res = readFileSync(`./cache/${file}`, "utf8");
+      const response = JSON.parse(res);
+      const data = response.players;
+      if (data.length === 0) return;
+      if (players.length <= 1) return;
+      else
+        return players.map((player, index) => {
+          let steamId = `[${player.steamId}]`;
+          if (file === "pazer.json") {
+            const steamid = new SteamID(`[${player.steamId}]`);
+            steamId = Number(steamid.getSteamID64()) - 1;
+          }
+          const cheater = data.find((x) => x.steamid === steamId);
+          const user = players.find((x) => x.steamId === playerId);
+
+          if (cheater && !player.cheater) {
+            players.splice(index, 1, {
+              ...player,
+              cheater: true,
+            });
+          }
+
+          if (cheater && user && user.team === player.team) {
+            if (lastCalled >= Date.now() - voteDelay) return;
+            lastCalled = Date.now();
+            command = `callvote kick ${player.id}`;
+            connection.send(command);
+            const date = new Date();
+            logs.push({
+              content: player.name,
+              time: `${
+                date.getHours() < 10
+                  ? `0${date.getHours()}`
+                  : `${date.getHours()}`
+              }:${
+                date.getMinutes() < 10
+                  ? `0${date.getMinutes()}`
+                  : `${date.getMinutes()}`
+              }:${
+                date.getSeconds() < 10
+                  ? `0${date.getSeconds()}`
+                  : `${date.getSeconds()}`
+              }`,
+            });
+            console.log(`${log("vote")} Called vote on ${player.name}`);
+            return;
+          } else return;
+        });
+    });
+  } catch {
+    return;
+  }
+}, 100);
 
 setInterval(() => {
   command = "tf_lobby_debug";
@@ -287,7 +294,7 @@ setInterval(() => {
   if (!connected) return;
   command = "status";
   connection.send(command);
-}, 4500);
+}, 5000);
 
 app.listen(appPort, () => {
   console.log(`${log("web")} Listening on port ${appPort}`);
