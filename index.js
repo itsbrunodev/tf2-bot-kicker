@@ -115,7 +115,7 @@ connection
         continue;
       }
 
-      return players.map((player, index) => {
+      players.map((player, index) => {
         if (!tempPlayers.find((x) => x.steamId === player.steamId)) {
           players.splice(index, 1);
           if (debugPlayers.find((x) => x.steamId === player.steamId)) {
@@ -127,6 +127,63 @@ connection
           return;
         } else return;
       });
+
+      /* bot detector and kicker */
+      try {
+        const files = readdirSync("./cache/");
+        return files.map((file) => {
+          const res = readFileSync(`./cache/${file}`, "utf8");
+          const response = JSON.parse(res);
+          const data = response.players;
+          if (data.length === 0) return;
+          if (players.length <= 1) return;
+          else
+            return players.map((player, index) => {
+              let steamId = `[${player.steamId}]`;
+              if (file === "pazer.json") {
+                const steamid = new SteamID(`[${player.steamId}]`);
+                steamId = Number(steamid.getSteamID64()) - 1;
+              }
+              const cheater = data.find((x) => x.steamid === steamId);
+              const user = players.find((x) => x.steamId === playerId);
+
+              if (cheater && !player.cheater) {
+                players.splice(index, 1, {
+                  ...player,
+                  cheater: true,
+                });
+              }
+
+              if (cheater && user && user.team === player.team) {
+                if (lastCalled >= Date.now() - voteDelay) return;
+                lastCalled = Date.now();
+                command = `callvote kick ${player.id} cheating`;
+                connection.send(command);
+                const date = new Date();
+                logs.push({
+                  content: player.name,
+                  time: `${
+                    date.getHours() < 10
+                      ? `0${date.getHours()}`
+                      : `${date.getHours()}`
+                  }:${
+                    date.getMinutes() < 10
+                      ? `0${date.getMinutes()}`
+                      : `${date.getMinutes()}`
+                  }:${
+                    date.getSeconds() < 10
+                      ? `0${date.getSeconds()}`
+                      : `${date.getSeconds()}`
+                  }`,
+                });
+                console.log(`${log("vote")} Called vote on ${player.name}`);
+                return;
+              } else return;
+            });
+        });
+      } catch {
+        return;
+      }
     } else if (command === "status") {
       const logFile2 = readFileSync(tf2Path, "utf8");
       const status = difference(logFile, logFile2);
@@ -225,65 +282,6 @@ setInterval(() => {
     return;
   }
 }, 0);
-
-setInterval(() => {
-  /* bot detector and kicker */
-  try {
-    const files = readdirSync("./cache/");
-    files.map((file) => {
-      const res = readFileSync(`./cache/${file}`, "utf8");
-      const response = JSON.parse(res);
-      const data = response.players;
-      if (data.length === 0) return;
-      if (players.length <= 1) return;
-      else
-        return players.map((player, index) => {
-          let steamId = `[${player.steamId}]`;
-          if (file === "pazer.json") {
-            const steamid = new SteamID(`[${player.steamId}]`);
-            steamId = Number(steamid.getSteamID64()) - 1;
-          }
-          const cheater = data.find((x) => x.steamid === steamId);
-          const user = players.find((x) => x.steamId === playerId);
-
-          if (cheater && !player.cheater) {
-            players.splice(index, 1, {
-              ...player,
-              cheater: true,
-            });
-          }
-
-          if (cheater && user && user.team === player.team) {
-            if (lastCalled >= Date.now() - voteDelay) return;
-            lastCalled = Date.now();
-            command = `callvote kick ${player.id}`;
-            connection.send(command);
-            const date = new Date();
-            logs.push({
-              content: player.name,
-              time: `${
-                date.getHours() < 10
-                  ? `0${date.getHours()}`
-                  : `${date.getHours()}`
-              }:${
-                date.getMinutes() < 10
-                  ? `0${date.getMinutes()}`
-                  : `${date.getMinutes()}`
-              }:${
-                date.getSeconds() < 10
-                  ? `0${date.getSeconds()}`
-                  : `${date.getSeconds()}`
-              }`,
-            });
-            console.log(`${log("vote")} Called vote on ${player.name}`);
-            return;
-          } else return;
-        });
-    });
-  } catch {
-    return;
-  }
-}, 100);
 
 setInterval(() => {
   command = "tf_lobby_debug";
