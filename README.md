@@ -13,7 +13,7 @@ rcon_password tf2-bot-kicker
 
 **Step 1.** Add the 3 lines above to your `autoexec.cfg` file. The `rcon_address` value needs to be your local IPv4 address (example: 192.168.0.13).\
 **Step 2.** Add `-condebug -conclearlog -usercon -exec autoexec` to your TF2 launch options in Steam.\
-**Step 3.** Set your `/tf` directory location in `cfg/config.js`
+**Step 3.** Set your `/tf` directory location in `cfg/config.js`.
 
 ## Configuration
 
