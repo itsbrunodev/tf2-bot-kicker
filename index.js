@@ -17,7 +17,7 @@ const connection = new Rcon(ip, port, password);
 
 /* user info, tf2 console file path, and caching of the bot list files */
 const { steam_id, tf_path, urls } = config;
-const playerId = steam_id;
+const playerId = steam_id.replace("[", "").replace("]", "");
 const tf2Path = tf_path.replace("/", "\\");
 cacheList(urls);
 /* status */
@@ -46,15 +46,7 @@ app.get("/", async (req, res) => {
   return res.render("index", {
     title: "TF2 Bot Kicker",
     logs,
-    players: players /* .sort((a, b) => {
-      if (a.team < b.team) {
-        return -1;
-      }
-      if (a.team > b.team) {
-        return 1;
-      }
-      return 0;
-    }) */,
+    players,
     connected,
     lobby,
   });

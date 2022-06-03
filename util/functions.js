@@ -29,9 +29,6 @@ module.exports.log = (type) => {
     case "web": {
       return `${time} ${colorette.bgCyan(colorette.black(` web `))}`;
     }
-    case "cache": {
-      return `${time} ${colorette.bgMagenta(colorette.black(` cache `))}`;
-    }
     case "error": {
       return `${time} ${colorette.bgRed(colorette.black(` error `))}`;
     }
@@ -54,17 +51,12 @@ module.exports.cacheList = (urls) => {
       );
       if (url.disabled) return;
       const res = await axios.get(url.url);
-      /* console.log(`${this.log("cache")} Caching ${url.name}.json`); */
       const data = res.data.players;
       writeFileSync(
         `${__dirname}\\..\\cache\\${url.name}.json`,
         JSON.stringify({ players: data })
       );
-      return; /* console.log(
-        `${this.log("success")} Cached ${data.length || 0} users in ${
-          url.name
-        }.json`
-      ); */
+      return;
     } catch {
       return;
     }

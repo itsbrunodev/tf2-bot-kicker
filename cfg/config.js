@@ -1,7 +1,7 @@
 module.exports = {
   /* your steam id (example U:1:XXXXXXXXXX) */
   steam_id: "",
-  /* the location of the /tf directory in team fortress 2 */
+  /* the location of the /tf directory in team fortress 2 (example: C:/Program Files/Steam/steamapps/common/Team Fortress 2/tf) */
   tf_path: "",
   /* rcon settings */
   rcon: {

@@ -17,10 +17,10 @@ rcon_password tf2-bot-kicker
 
 ## Configuration
 
-`steam_id` is your SteamID3 (example: U:1:XXXXXXXXXX)\
-`tf_path` is the location of the `/tf` directory in Team Fortress 2\
+`steam_id` - your SteamID3 (example: U:1:XXXXXXXXXX)\
+`tf_path` - the location of the `/tf` directory in Team Fortress 2 (example: `C:/Program Files/Steam/steamapps/common/Team Fortress 2/tf`)\
 `rcon`\
-&nbsp;&nbsp;&nbsp;&nbsp;`ip` is your local IPv4 address (example: 192.168.0.13)\
+&nbsp;&nbsp;&nbsp;&nbsp;`ip` - your local IPv4 address (example: 192.168.0.13)\
 &nbsp;&nbsp;&nbsp;&nbsp;`port` (default: 27015)\
 &nbsp;&nbsp;&nbsp;&nbsp;`password` (default: tf2-bot-kicker)\
 `urls` default urls where the bots' steamIDs are stored
