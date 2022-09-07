@@ -1,6 +1,6 @@
 {
   "name": "tf2-bot-kicker",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A tool that automatically detects and kicks bots in Team Fortress 2.",
   "main": "index.js",
   "scripts": {

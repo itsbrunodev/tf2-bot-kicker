@@ -19,6 +19,17 @@ const connection = new Rcon(ip, port, password);
 const { steam_id, tf_path, urls } = config;
 const playerId = steam_id.replace("[", "").replace("]", "");
 const tf2Path = tf_path.replace("/", "\\");
+/* verify config values */
+if (!existsSync(`${tf2Path}\\console.log`)) {
+  console.log(`${log("error")} Your tf2 console file path couldn't be found`);
+  return process.exit(1);
+} else if (!playerId) {
+  console.log(`${log("error")} Your Steam ID couldn't be found`);
+  return process.exit(1);
+} else if (!ip) {
+  console.log(`${log("error")} Your RCON ip couldn't be found`);
+  return process.exit(1);
+}
 cacheList(urls);
 /* status */
 let connected = false;
@@ -51,12 +62,6 @@ app.get("/", async (req, res) => {
     lobby,
   });
 });
-
-/* verify config values */
-if (!existsSync(`${tf2Path}\\console.log`)) {
-  console.log(`${log("error")} Your tf2 console file path couldn't be found`);
-  return process.exit(1);
-}
 
 connection
   .on("auth", () => {
