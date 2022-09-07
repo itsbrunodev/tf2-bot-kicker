@@ -149,7 +149,7 @@ connection
               if (cheater && user && user.team === player.team) {
                 if (lastCalled >= Date.now() - voteDelay) return;
                 lastCalled = Date.now();
-                command = `callvote kick ${player.id} cheating`;
+                command = `callvote kick ${player.id}`;
                 connection.send(command);
                 const date = new Date();
                 logs.push({
@@ -264,6 +264,8 @@ setInterval(() => {
   }
   if (lobbyIds.length === 2 && lobbyIds[0] !== lobbyIds[1]) {
     lobbyIds.splice(0, 1);
+    debugPlayers = [];
+    players = [];
     lastCalled = 0;
   }
   if (players.length <= 1) return;
@@ -284,7 +286,7 @@ setInterval(() => {
   if (!connected) return;
   command = "status";
   connection.send(command);
-}, 5000);
+}, 5500);
 
 app.listen(appPort, () => {
   console.log(`${log("web")} Listening on port ${appPort}`);

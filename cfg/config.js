@@ -1,15 +1,16 @@
 module.exports = {
   /* your steam id (example U:1:XXXXXXXXXX) */
   steam_id: "",
-  /* the location of the /tf directory in team fortress 2 (example: C:/Program Files/Steam/steamapps/common/Team Fortress 2/tf) */
+  /* the location of the /tf directory in Team Fortress 2 (example: C:/Program Files/Steam/steamapps/common/Team Fortress 2/tf) */
   tf_path: "",
   /* rcon settings */
   rcon: {
-    ip: "",
+    ip: "" /* (example: 192.168.0.13) */,
     port: 27015 /* default */,
-    password: "tf2-bot-kicker" /* default */,
+    password: "tf2bk" /* default */,
   },
-  /* default urls where the bots' steamIDs are stored  */
+  /* default urls where the bots' steamIDs are stored
+     NOTE: Do NOT change anything bellow unless you know what you are doing! */
   urls: [
     {
       name: "biglist",
