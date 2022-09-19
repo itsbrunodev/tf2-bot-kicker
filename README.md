@@ -3,7 +3,7 @@
 
 ## Setup
 
-To start using this tool, you need to download it from [here](https://github.com/brunolepis/tf2-bot-kicker/archive/refs/heads/master.zip).
+Download the latest release from the [releases](https://github.com/brunolepis/mcsc/releases/latest) tab.
 
 ```
 net_start
@@ -23,7 +23,7 @@ rcon_password tf2bk
 &nbsp;&nbsp;&nbsp;&nbsp;`ip` your local IPv4 address (example: `192.168.0.13`)\
 &nbsp;&nbsp;&nbsp;&nbsp;`port` (default: `27015`)\
 &nbsp;&nbsp;&nbsp;&nbsp;`password` (default: `tf2bk`)\
-`urls` default urls where the bots' steamIDs are stored
+`urls` default urls where bot steamIDs are stored
 
 ## Usage
 
