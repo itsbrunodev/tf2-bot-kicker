@@ -16,7 +16,7 @@ const { ip, port, password } = config.rcon;
 const connection = new Rcon(ip, port, password);
 
 /* user info, tf2 console file path, and caching of the bot list files */
-const { steam_id, tf_path, urls } = config;
+const { steam_id, dashboard, tf_path, urls } = config;
 const playerId = steam_id.replace("[", "").replace("]", "");
 const tf2Path = tf_path.replace("/", "\\");
 /* verify config values */
@@ -46,7 +46,6 @@ let players = [];
 
 const express = require("express");
 const app = express();
-const appPort = 3000;
 
 app.set("views", `${__dirname}/views`);
 app.use(express.static(`${__dirname}/public`));
@@ -293,6 +292,6 @@ setInterval(() => {
   connection.send(command);
 }, 5500);
 
-app.listen(appPort, () => {
-  console.log(`${log("web")} Listening on port ${appPort}`);
+app.listen(dashboard.port, () => {
+  console.log(`${log("web")} Running on http://localhost:${dashboard.port}`);
 });

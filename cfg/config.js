@@ -3,6 +3,10 @@ module.exports = {
   steam_id: "",
   /* the location of the /tf directory in Team Fortress 2 (example: C:/Program Files/Steam/steamapps/common/Team Fortress 2/tf) */
   tf_path: "",
+  /* web dashboard */
+  dashboard: {
+    port: 3000 /* default */,
+  },
   /* rcon settings */
   rcon: {
     ip: "" /* (example: 192.168.0.13) */,
