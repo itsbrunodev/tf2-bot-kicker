@@ -28,6 +28,11 @@ module.exports = {
       url: "https://raw.githubusercontent.com/Lozarth/rules.lozarth.json/main/playerlist.lozarth.json",
     },
     {
+      name: "qfoxb",
+      disabled: false,
+      url: "https://raw.githubusercontent.com/qfoxb/tf2bd-lists/main/playerlist.qfoxb.json",
+    },
+    {
       name: "pazer",
       disabled: true /* offline */,
       url: "https://tf2bdd.pazer.us/v1/steamids",
