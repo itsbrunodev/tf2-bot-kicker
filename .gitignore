@@ -1,6 +1,5 @@
-/package-lock.json
 /node_modules
 
 # directories by tf2bk
 /cache
-/cfg/config-template.js
+/config.js

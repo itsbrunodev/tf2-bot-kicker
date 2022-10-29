@@ -1,297 +1,172 @@
-const Rcon = require("rcon");
-const {
-  log,
-  removeDuplicates,
-  capitalize,
-  cacheList,
-  formatter,
-  difference,
-} = require("./util/functions");
-const config = require("./cfg/config");
-const SteamID = require("steamid");
-const { readdirSync, readFileSync, existsSync } = require("fs");
-
-/* rcon connection */
-const { ip, port, password } = config.rcon;
-const connection = new Rcon(ip, port, password);
-
-/* user info, tf2 console file path, and caching of the bot list files */
-const { steam_id, dashboard, tf_path, urls } = config;
-const playerId = steam_id.replace("[", "").replace("]", "");
-const tf2Path = tf_path.replace("/", "\\");
-/* verify config values */
-if (!existsSync(`${tf2Path}\\console.log`)) {
-  console.log(`${log("error")} Your tf2 file path couldn't be found`);
-  return process.exit(1);
-} else if (!playerId) {
-  console.log(`${log("error")} Your Steam ID couldn't be found`);
-  return process.exit(1);
-} else if (!ip) {
-  console.log(`${log("error")} Your RCON IP address couldn't be found`);
-  return process.exit(1);
-}
-cacheList(urls);
-/* status */
-let connected = false;
-let command = "";
-let lastCalled = 0;
-let voteDelay = 2 * 60 * 1000 + 35 * 1000; /* 2 min 35 sec, ~150,000 ms */
-let logFile = readFileSync(`${tf2Path}\\console.log`, "utf8");
-/* game */
-let lobbyIds = [];
-let lobby = {};
-let logs = [];
-let debugPlayers = [];
-let players = [];
-
+const rcon = require("rcon");
 const express = require("express");
+const config = require("./config");
+const fs = require("node:fs");
+
+/* check if required values are set in the config */
+let configured = true;
+for (const x in config) {
+  if (config[x]?.length === 0) {
+    configured = false;
+    return console.log(`Please set the "${x}" in the config.json file`);
+  }
+}
+if (!configured) process.exit(1);
+
+const { loadEvents } = require("./util/functions");
+
+/* establish a connection with rcon */
+const { ip, port, password } = config.rcon;
+const client = new rcon(ip, port, password);
+
+/* client variables */
+client.playerSteamId = config.steamId;
+client.tfPath = config.tfPath;
+client.connected = false;
+client.command = null;
+client.consoleFile = fs.readFileSync(`${config.tfPath}/console.log`, "utf-8");
+client.lobby = {};
+client.members = [];
+client.tempMembers = [];
+/*  */
+client.files = [];
+const dir = fs.readdirSync("./cache/", { withFileTypes: true });
+const files = dir.filter((x) => !x.isDirectory()).map((x) => x.name);
+files.forEach((x) => {
+  const file = fs.readFileSync(`./cache/${x}`, "utf-8");
+  client.files.push({
+    name: x.replace(/.json/g, ""),
+    content: file,
+  });
+});
+
+module.exports = client;
+
+/* load the events in ./events */
+loadEvents();
+
+/* establish a connection with the rcon */
+client.connect();
+
+/* create express app */
 const app = express();
 
+/* set epxress values */
 app.set("views", `${__dirname}/views`);
 app.use(express.static(`${__dirname}/public`));
 app.use(express.json());
 app.set("view engine", "ejs");
 
+/* index.ejs */
 app.get("/", async (req, res) => {
   return res.render("index", {
     title: "TF2 Bot Kicker",
-    logs,
-    players,
-    connected,
-    lobby,
+    connected: client.connected,
+    lobby: client.lobby,
+    members: client.members.sort((a, b) => {
+      if (!a.name || !b.name) return 0;
+      const nameA = a.name.toUpperCase();
+      const nameB = b.name.toUpperCase();
+      if (nameA < nameB) {
+        return -1;
+      }
+      if (nameA > nameB) {
+        return 1;
+      }
+      return 0;
+    }),
   });
 });
 
-connection
-  .on("auth", () => {
-    return console.log(`${log("rcon")} Connection established with rcon`);
-  })
-  .on("response", async (str) => {
-    if (command === "tf_lobby_debug") {
-      if (str === "Failed to find lobby shared object")
-        return (connected = false);
-      else connected = true;
+/* add.ejs */
+app.get("/add/:steamid", async (req, res) => {
+  const steamid = req.params.steamid;
+  if (!steamid) {
+    return res.render("add", {
+      title: "Add to list",
+      text: "Please provide an ID",
+    });
+  } else {
+    if (!fs.existsSync("./cache/custom.json"))
+      fs.writeFileSync("./cache/custom.json", JSON.stringify({ players: [] }));
+    const custom = fs.readFileSync("./cache/custom.json", "utf-8");
+    const data = JSON.parse(custom);
+    const players = data.players;
 
-      const lobbyDebug_Lobby = /ID:(\w+)\s+(\d+)\s+[\w\(\),]+\s+(\d*)\s+/gm;
-
-      while ((match = lobbyDebug_Lobby.exec(str)) !== null) {
-        if (lobbyIds.length === 0) {
-          lobbyIds.push(match[1]);
-        } else if (lobbyIds.length === 1 && lobbyIds[0] !== match[1]) {
-          lobbyIds.push(match[1]);
-        } else if (
-          lobbyIds.length === 2 &&
-          lobbyIds[0] === lobbyIds[1] &&
-          lobbyIds[1] !== match[1]
-        ) {
-          lobbyIds.splice(0, 1);
-          lobbyIds.push(match[1]);
-        }
-        lobby = {
-          id: match[1],
-          playerCount: match[2],
-          pendingCount: match[3],
-          map: lobby.map,
-        };
-        continue;
-      }
-
-      const tempPlayers = [];
-
-      const lobbyDebug_User = /\s+\[(\w+:\d+:\d+)\]\s+\w+\s+=\s+(\w+)/gm;
-      while ((match = lobbyDebug_User.exec(str)) !== null) {
-        const obj = {
-          steamId: match[1],
-          team: match[2] === "TF_GC_TEAM_DEFENDERS" ? "defenders" : "invaders",
-        };
-        if (!tempPlayers.find((x) => x.steamId === match[1]))
-          tempPlayers.push(obj);
-        if (!debugPlayers.find((x) => x.steamId === match[1]))
-          debugPlayers.push(obj);
-        continue;
-      }
-
-      players.map((player, index) => {
-        if (!tempPlayers.find((x) => x.steamId === player.steamId)) {
-          players.splice(index, 1);
-          if (debugPlayers.find((x) => x.steamId === player.steamId)) {
-            debugPlayers.splice(
-              debugPlayers.findIndex((x) => x.steamId === player.steamId),
-              1
-            );
-          } else return;
-          return;
-        } else return;
+    if (players.find((x) => x.steamid === steamid)) {
+      return res.render("add", {
+        title: "Add to list",
+        success: false,
+        id: steamid,
+        text: "That player is already on the list",
       });
-
-      /* bot detector and kicker */
-      try {
-        const files = readdirSync("./cache/");
-        return files.map((file) => {
-          const res = readFileSync(`./cache/${file}`, "utf8");
-          const response = JSON.parse(res);
-          const data = response.players;
-          if (data.length === 0) return;
-          if (players.length <= 1) return;
-          else
-            return players.map((player, index) => {
-              let steamId = `[${player.steamId}]`;
-              if (file === "pazer.json") {
-                const steamid = new SteamID(`[${player.steamId}]`);
-                steamId = Number(steamid.getSteamID64()) - 1;
-              }
-              const cheater = data.find((x) => x.steamid === steamId);
-              const user = players.find((x) => x.steamId === playerId);
-
-              if (cheater && !player.cheater) {
-                players.splice(index, 1, {
-                  ...player,
-                  cheater: true,
-                });
-              }
-
-              if (cheater && user && user.team === player.team) {
-                if (lastCalled >= Date.now() - voteDelay) return;
-                lastCalled = Date.now();
-                command = `callvote kick ${player.id}`;
-                connection.send(command);
-                const date = new Date();
-                logs.push({
-                  content: player.name,
-                  time: `${
-                    date.getHours() < 10
-                      ? `0${date.getHours()}`
-                      : `${date.getHours()}`
-                  }:${
-                    date.getMinutes() < 10
-                      ? `0${date.getMinutes()}`
-                      : `${date.getMinutes()}`
-                  }:${
-                    date.getSeconds() < 10
-                      ? `0${date.getSeconds()}`
-                      : `${date.getSeconds()}`
-                  }`,
-                });
-                console.log(`${log("vote")} Called vote on ${player.name}`);
-                return;
-              } else return;
-            });
-        });
-      } catch {
-        return;
-      }
-    } else if (command === "status") {
-      const logFile2 = readFileSync(`${tf2Path}\\console.log`, "utf8");
-      const status = difference(logFile, logFile2);
-      if (!status.includes("Valve Matchmaking Server")) return;
-      logFile = logFile2;
-
-      const map_Lobby = /map\s+:\s+(\w+)/gm;
-      while ((match = map_Lobby.exec(status)) !== null) {
-        const regex = /([a-z]+)_(\w+)/;
-        const mapType = match[1].match(regex)[1];
-        const mapName = match[1].match(regex)[2];
-        const map = [`${capitalize(mapName)}`, `${formatter(mapType)}`];
-        if (lobbyIds.length === 1 && map !== lobbyIds[0]) {
-          lobby.map = map;
-          continue;
-        } else if (lobbyIds.length === 2 && lobbyIds[1] !== lobbyIds[0]) {
-          lobby.map = map;
-          continue;
-        } else continue;
-      }
-
-      const status_User =
-        /^#\s+(\d+)\s+\"([-+., A-Za-z0-9\S]+)\"\s+\[(\w+:\d+:\d+)\]\s+([\d:]+)\s+\d+\s+\d\s+\w+$/gm;
-      while ((match = status_User.exec(status)) !== null) {
-        const debugPlayer = debugPlayers.find((x) => x.steamId === match[3]);
-        const player = players.find((x) => x.steamId === match[3]);
-        if (player) {
-          players.splice(
-            players.findIndex((x) => x.steamId === match[3]),
-            1,
-            {
-              name: match[2],
-              nameShort:
-                match[2].length >= 40
-                  ? `${match[2].substring(0, 37)}...`
-                  : match[2],
-              connected: match[4],
-              cheater: player.cheater,
-              id: match[1],
-              steamId: match[3],
-              team: debugPlayer?.team,
-            }
-          );
-          continue;
-        } else {
-          players.push({
-            name: match[2],
-            nameShort:
-              match[2].length >= 40
-                ? `${match[2].substring(0, 37)}...`
-                : match[2],
-            connected: match[4],
-            cheater: false,
-            id: match[1],
-            steamId: match[3],
-            team: debugPlayer?.team,
-          });
-          continue;
-        }
-      }
-
-      return;
-    } else return;
-  })
-  .on("server", (str) => {
-    return console.log(str);
-  })
-  .on("error", (err) => {
-    return console.log(err);
-  })
-  .on("end", () => {
-    console.log(`${log("rcon")} Connection closed`);
-    process.exit();
-  });
-
-connection.connect();
-
-setInterval(() => {
-  if (!connected) {
-    debugPlayers = [];
-    players = [];
-    lastCalled = 0;
-    if (lobbyIds.length === 2) {
-      lobbyIds.splice(0, 1);
+    } else if (steamid === config.steamId) {
+      return res.render("add", {
+        title: "Add to list",
+        success: false,
+        id: steamid,
+        text: "You can't add yourself to the list",
+      });
+    } else {
+      players.push({ steamid });
+      const stringified = JSON.stringify({ players });
+      fs.writeFileSync("./cache/custom.json", stringified);
+      client.files.splice(
+        client.files.findIndex((x) => x.name === "custom"),
+        1,
+        { name: "custom", content: stringified }
+      );
+      return res.render("add", {
+        title: "Add to list",
+        success: true,
+        id: steamid,
+        text: `Added ${steamid} to the list`,
+      });
     }
   }
-  if (lobbyIds.length === 2 && lobbyIds[0] !== lobbyIds[1]) {
-    lobbyIds.splice(0, 1);
-    debugPlayers = [];
-    players = [];
-    lastCalled = 0;
+});
+
+/* remove.ejs */
+app.get("/remove/:steamid", async (req, res) => {
+  const steamid = req.params.steamid;
+  if (!steamid) {
+    return res.render("remove", {
+      title: "Remove from list",
+      text: "Please provide an ID",
+    });
+  } else {
+    if (!fs.existsSync("./cache/custom.json"))
+      fs.writeFileSync("./cache/custom.json", JSON.stringify({ players: [] }));
+    const custom = fs.readFileSync("./cache/custom.json", "utf-8");
+    const data = JSON.parse(custom);
+    const players = data.players;
+
+    if (players.find((x) => x.steamid === steamid)) {
+      players.splice(
+        players.findIndex((x) => x.steamid === steamid),
+        1
+      );
+      const stringified = JSON.stringify({ players });
+      fs.writeFileSync("./cache/custom.json", stringified);
+      client.files.splice(
+        client.files.findIndex((x) => x.name === "custom"),
+        1,
+        { name: "custom", content: stringified }
+      );
+      return res.render("remove", {
+        title: "Remove from list",
+        text: `Removed ${steamid} from the list`,
+      });
+    } else {
+      return res.render("remove", {
+        title: "Remove from list",
+        text: `That player isn't on the list`,
+      });
+    }
   }
-  if (players.length <= 1) return;
-  else if (debugPlayers.length <= 1) return;
-  else {
-    debugPlayers = removeDuplicates(debugPlayers, "steamId");
-    players = removeDuplicates(players, "steamId");
-    return;
-  }
-}, 0);
+});
 
-setInterval(() => {
-  command = "tf_lobby_debug";
-  connection.send(command);
-}, 1000);
-
-setInterval(() => {
-  if (!connected) return;
-  command = "status";
-  connection.send(command);
-}, 5500);
-
-app.listen(dashboard.port, () => {
-  console.log(`${log("web")} Running on http://localhost:${dashboard.port}`);
+/* start dashboard */
+app.listen(config.dashboard.port, () => {
+  console.log(`Running on http://localhost:${config.dashboard.port}`);
 });

@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/png" href="/img/favicon.png" />
   <link rel="stylesheet" type="text/css" href="/css/base.css" />
   <title><%= title %></title>
@@ -11,57 +12,36 @@
 
 <body>
   <div id="app">
-    <div class="players" id="players" <% if (!connected) { %> style="justify-content:center;align-items:center;" <% } %>>
-      <% if (!connected) { %>
-      <h1 class="players-none">Not Connected</h1>
-      <% } else { %>
-      <div class="lobby">
-        <h1 class="lobby-map"><%= lobby.map ? lobby.map[0] : "??" %></h1>
-        <h1 class="lobby-map-type"><%= lobby.map ? lobby.map[1] : "??" %></h1>
-        <h1 class="lobby-players"><%= players.length ? players.length : "??" %> / <%= lobby.playerCount ? lobby.playerCount : "??" %> players</h1>
-      </div>
-      <div class="separator"></div>
-      <table class="players-table" id="table">
-        <tr class="players-header">
-          <th class="players-header-text">Player Name</th>
-          <th class="players-header-text">Connected</th>
-          <th class="players-header-text">Cheater?</th>
-          <th class="players-header-text">Player ID</th>
-          <th class="players-header-text">Steam ID</th>
+    <% if (!connected) { %>
+    <h2>Not Connected</h2>
+    <% } else { %>
+    <div class="lobby">
+      <!-- <h2><%= lobby.members || "Connecting..." %> / <%= lobby.max || "Connecting..." %></h2> -->
+      <table>
+        <tr>
+          <th>Name</th>
+          <th>Steam ID</th>
+          <th>Ping</th>
+          <th>Connected</th>
+          <th>Cheater?</th>
+          <th>Actions</th>
         </tr>
-        <% players.map((player) => { %>
-        <tr class="players-player" <% if (player.team === "invaders") { %> style="background: rgba(var(--white), 0.15);" <% } else { %> style="background: rgba(var(--white), 0.075);" <% } %>>
-          <td class="players-player-text" <% if (player.name === "Bruno") { %> style="color: rgba(var(--white), 1);font-weight: 500;" <% } %>>
-            <%= player.nameShort ? player.nameShort : "??" %>
+        <% members.map((member) => { %>
+        <tr class="<%= member?.team === "TF_GC_TEAM_INVADERS" ? "blu" : "red" %>">
+          <td><%= member?.name || "Connecting..." %></td>
+          <td><%= member?.steamId %></td>
+          <td><%= member?.ping || "0" %>ms</td>
+          <td><%= member?.connected || "00:00" %></td>
+          <td class="<%= member?.cheater ? "cheater" : "player" %>"><%= member?.cheater ? "Yes" : "No" %></td>
+          <td>
+            <a href="/add/<%= member?.steamId %>" title="Add the player to the custom list" class="btn">Add</a>
+            <a href="/remove/<%= member?.steamId %>" title="Remove the player from the custom list" class="btn">Remove</a>
           </td>
-          <td class="players-player-text"><%= player.connected ? player.connected : "??" %></td>
-          <td class="players-player-text" <% if (player.cheater) { %> style="color: rgba(var(--red), 1);" <% } %>> <%= player.cheater
-                    ? "Yes" : "No" %>
-          </td>
-          <td class="players-player-text"><%= player.id ? player.id : "??" %></td>
-          <td class="players-player-text"><%= player.steamId ? player.steamId : "??" %></td>
         </tr>
-        <% }); %>
+        <% }) %>
       </table>
-      <% } %>
     </div>
-    <div class="logs">
-      <% if (connected) { %>
-      <h1 class="logs-title">Logs</h1>
-      <div class="separator"></div>
-      <% logs.map((log) => { %>
-      <% if (log.author === "separator" && !log.content) { %>
-      <div class="separator">
-      </div>
-      <% } else { %>
-      <div class="logs-message">
-        <p class="message-time"><%= log.time %></p>
-        <p class="message-content">Called a vote on <strong class="message-content-player"><%= log.content %></strong>.</p>
-      </div>
-      <% } %>
-      <% }); %>
-      <% } %>
-    </div>
+    <% } %>
   </div>
 
   <script src="/script.js"></script>

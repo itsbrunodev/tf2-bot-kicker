@@ -16,7 +16,7 @@ TF2BK is using Steam's [RCON](https://developer.valvesoftware.com/wiki/Source_RC
 npm install
 ```
 
-**Step 3.** Add the 3 lines bellow to your `autoexec.cfg` file. The `rcon_address` value needs to be your local IPv4 address (example: `192.168.0.13`)
+**Step 3.** Add the 3 lines bellow to your `autoexec.cfg` file (`Team Fortress 2/tf/cfg/overrides/`). The `rcon_address` value needs to be your local IPv4 address (example: `192.168.0.1`)
 
 ```
 net_start
@@ -25,7 +25,8 @@ rcon_password tf2bk
 ```
 
 **Step 4.** Add `-condebug -conclearlog -usercon -exec autoexec` to your TF2 launch options in Steam\
-**Step 5.** Set your `/tf` directory location in `cfg/config.js`
+**Step 5.** Set your `/tf` directory location, your Steam ID and the rcon IP in `config-template.js`
+**Step 6.** Rename `config-template.js` to `config.js`
 
 ## Usage
 
@@ -35,12 +36,12 @@ npm start
 
 ## Configuration
 
-`steam_id` your SteamID3 (example: `U:1:XXXXXXXXXX`)\
-`tf_path` the location of the `/tf` directory in Team Fortress 2 (example: `C:/Program Files/Steam/steamapps/common/Team Fortress 2/tf`)\
-`dashboard`\
-&nbsp;&nbsp;&nbsp;&nbsp;`port` (default: `3000`)\
+`steamId` your Steam ID\
+`tfPath` the location of the `/tf` directory in Team Fortress 2 (example: `C:/Program Files/Steam/steamapps/common/Team Fortress 2/tf`)\
 `rcon`\
-&nbsp;&nbsp;&nbsp;&nbsp;`ip` your local IPv4 address (example: `192.168.0.13`)\
+&nbsp;&nbsp;&nbsp;&nbsp;`ip` your local IPv4 address (example: `192.168.0.1`)\
 &nbsp;&nbsp;&nbsp;&nbsp;`port` (default: `27015`)\
 &nbsp;&nbsp;&nbsp;&nbsp;`password` (default: `tf2bk`)\
-`urls` default urls where bot steamIDs are stored
+`dashboard`\
+&nbsp;&nbsp;&nbsp;&nbsp;`port` (default: `3000`)\
+`urls` default urls where bot Steam IDs are stored
