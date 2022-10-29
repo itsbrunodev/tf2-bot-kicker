@@ -1,6 +1,7 @@
 const rcon = require("rcon");
 const express = require("express");
 const fs = require("node:fs");
+const config = require("./config");
 
 /* check if required values are set in the config */
 let configured = true;
