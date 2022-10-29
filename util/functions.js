@@ -1,5 +1,6 @@
 const fs = require("node:fs");
 const SteamID = require("steamid");
+const config = require("../config");
 
 module.exports.loadEvents = () => {
   fs.readdirSync("./events/")
