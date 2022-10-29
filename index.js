@@ -1,6 +1,5 @@
 const rcon = require("rcon");
 const express = require("express");
-const config = require("./config");
 const fs = require("node:fs");
 
 /* check if required values are set in the config */
@@ -13,7 +12,7 @@ for (const x in config) {
 }
 if (!configured) process.exit(1);
 
-const { loadEvents } = require("./util/functions");
+const { loadEvents, steamId } = require("./util/functions");
 
 /* establish a connection with rcon */
 const { ip, port, password } = config.rcon;
@@ -100,7 +99,7 @@ app.get("/add/:steamid", async (req, res) => {
         id: steamid,
         text: "That player is already on the list",
       });
-    } else if (steamid === config.steamId) {
+    } else if (steamid === steamId()) {
       return res.render("add", {
         title: "Add to list",
         success: false,

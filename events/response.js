@@ -1,10 +1,9 @@
 const client = require("../index");
 const config = require("../config");
 const fs = require("node:fs");
-const SteamID = require("steamid");
 
 const { Lobby, Regex } = require("../util/constants");
-const { compare } = require("../util/functions");
+const { compare, steamId } = require("../util/functions");
 
 client.on("response", (response) => {
   /* check if the user is not connected */
@@ -175,10 +174,6 @@ client.on("response", (response) => {
         /* get the players array from the file */
         const players = JSON.parse(file.content).players;
         /* get the user's object from the client.members array */
-        const steamId = () => {
-          let steamID = new SteamID(config.steamId);
-          return steamID.getSteam3RenderedID();
-        };
         const player = client.members.find(
           (member) => member.steamId === steamId()
         );
