@@ -40,12 +40,16 @@ td {
   padding: 1px 7px 1px 7px;
 }
 
+tr.you > td {
+  border: rgba(255, 255, 255, 0.55) 1px solid;
+}
+
 tr.blu {
-  background: rgb(42, 111, 151, 0.5);
+  background: rgba(42, 111, 151, 0.5);
 }
 
 tr.red {
-  background: rgb(191, 67, 66, 0.5);
+  background: rgba(191, 67, 66, 0.5);
 }
 
 td:nth-child(n + 2) {
@@ -85,7 +89,7 @@ a.btn:active {
   background: rgba(0, 0, 0, 0.6);
 }
 
-div.add {
+div.container {
   display: flex;
   justify-content: center;
   align-items: center;

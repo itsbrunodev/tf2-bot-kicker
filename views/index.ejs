@@ -27,7 +27,7 @@
           <th>Actions</th>
         </tr>
         <% members.map((member) => { %>
-        <tr class="<%= member?.team === "TF_GC_TEAM_INVADERS" ? "blu" : "red" %>">
+        <tr class="<%= member?.team === "TF_GC_TEAM_INVADERS" ? "blu" : "red" %> <%= member?.steamId === steamId ? "you" : "" %>">
           <td><%= member?.name || "Connecting..." %></td>
           <td><%= member?.steamId %></td>
           <td><%= member?.ping || "0" %>ms</td>

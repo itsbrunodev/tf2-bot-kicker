@@ -13,7 +13,7 @@ for (const x in config) {
 }
 if (!configured) process.exit(1);
 
-const { loadEvents, steamId } = require("./util/functions");
+const { loadEvents, steamId, sort } = require("./util/functions");
 
 /* establish a connection with rcon */
 const { ip, port, password } = config.rcon;
@@ -59,22 +59,15 @@ app.set("view engine", "ejs");
 
 /* index.ejs */
 app.get("/", async (req, res) => {
+  const sortedByName = sort(client.members, "name");
+  const members = sort(sortedByName, "team");
+
   return res.render("index", {
     title: "TF2 Bot Kicker",
     connected: client.connected,
     lobby: client.lobby,
-    members: client.members.sort((a, b) => {
-      if (!a.name || !b.name) return 0;
-      const nameA = a.name.toUpperCase();
-      const nameB = b.name.toUpperCase();
-      if (nameA < nameB) {
-        return -1;
-      }
-      if (nameA > nameB) {
-        return 1;
-      }
-      return 0;
-    }),
+    steamId: steamId(config.steamId),
+    members,
   });
 });
 
@@ -103,7 +96,7 @@ app.get("/add/:steamid", async (req, res) => {
     } else if (steamid === steamId()) {
       return res.render("add", {
         title: "Add to list",
-        success: false,
+        success: true,
         id: steamid,
         text: "You can't add yourself to the list",
       });
