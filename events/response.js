@@ -169,6 +169,8 @@ client.on("response", (response) => {
         client.lobby = { ...client.lobby, max };
       }
 
+      const tempVoted = [];
+
       /* bot detection */
       client.files.forEach((file) => {
         /* get the players array from the file */
@@ -184,12 +186,15 @@ client.on("response", (response) => {
             (player) => player.steamid === member.steamId
           );
 
+          const voted = tempVoted.find((x) => x === member.steamId);
+
           /* if the cheater is found and isn't already voted on and is on the same team as the user */
-          if (found && !member.voted && member.team === player.team) {
+          if (found && !member.voted && !voted && member.team === player.team) {
             /* call a votekick against the cheater */
             client.command = `callvote kick ${member?.id}`;
             client.send(client.command);
-            /* update the cheater's object, set cheater to true and voted to true */
+            /* update the cheater's object, set cheater to true and voted to true, push to tempVoted */
+            tempVoted.push(member.steamId);
             client.members.splice(index, 1, {
               ...member,
               cheater: true,
