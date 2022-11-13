@@ -8,7 +8,7 @@ let configured = true;
 for (const x in config) {
   if (config[x]?.length === 0) {
     configured = false;
-    return console.log(`Please set the "${x}" in the config.json file`);
+    return console.log(`Please set the "${x}" in the config.js file`);
   }
 }
 if (!configured) process.exit(1);

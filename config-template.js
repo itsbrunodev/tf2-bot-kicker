@@ -1,8 +1,9 @@
 module.exports = {
-  steamId: "",
-  tfPath: "",
+  steamId: "" /* Your steam ID (example: 76561198862084948) */,
+  tfPath:
+    "" /* the location of the /tf directory in Team Fortress 2 (example: C:/Program Files/Steam/steamapps/common/Team Fortress 2/tf) */,
   rcon: {
-    ip: "",
+    ip: "" /* your local IPv4 address (example: 192.168.0.1) */,
     port: 27015,
     password: "tf2bk",
   },
